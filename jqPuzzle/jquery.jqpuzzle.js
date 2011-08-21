@@ -2,7 +2,7 @@
 /*
  * jqPuzzle - Sliding Puzzles with jQuery
  * Version 1.02
- * 
+ *
  * Copyright (c) 2008 Ralf Stoltze, http://www.2meter3.de/jqPuzzle/
  * Dual-licensed under the MIT and GPL licenses.
  */
@@ -10,14 +10,14 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 	// default settings
 	var defaults = {
-		
+
 		rows: 4, 					// number of rows [3 ... 9]
 		cols: 4,		 			// number of columns [3 ... 9]
 		hole: 16,					// initial hole position [1 ... rows*columns]
 		shuffle: false,				// initially show shuffled pieces [true|false]
 		numbers: true,				// initially show numbers on pieces [true|false]
 		language: 'en',				// language for gui elements [language code]
-		
+
 		// display additional gui controls
 		control: {
 			shufflePieces: true,	// display 'Shuffle' button [true|false]
@@ -26,10 +26,10 @@ $.fn.jqPuzzle = function(settings, texts) {
 			toggleNumbers: true,	// display 'Numbers' button [true|false]
 			counter: true,			// display moves counter [true|false]
 			timer: true,			// display timer (seconds) [true|false]
-			pauseTimer: false		// pause timer if 'Original' button is activated 
+			pauseTimer: false		// pause timer if 'Original' button is activated
 									// [true|false]
 		},
-		
+
 		// perform actions when the puzzle is solved sucessfully
 		success: {
 			fadeOriginal: true,		// cross-fade original image [true|false]
@@ -37,8 +37,8 @@ $.fn.jqPuzzle = function(settings, texts) {
 									// the function is passed an object as its argument
 									// which includes the fields 'moves' and 'seconds'
 			callbackTimeout: 300	// time in ms after which the callback is called
-		},		
-		
+		},
+
 		// animation speeds and settings
 		animation: {
 			shuffleRounds: 3,		// number of shuffle rounds [1 ... ]
@@ -46,7 +46,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 			slidingSpeed: 200,		// time in ms for a single move
 			fadeOriginalSpeed: 600	// time in ms to cross-fade original image
 		},
-		
+
 		// additional style information not specified via css
 		style: {
 			gridSize: 2,			// space between two pieces in px
@@ -56,7 +56,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 									// [0 ... 1] (0 means no display)
 		}
 	};
-	
+
 	// language localizations
 	var i18n = {
 		en: {
@@ -92,7 +92,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 			secondsLabel:			'segundos'
 		}
 	};
-	
+
 	// if rows or cols, but no hole was user-defined,
 	// explicitly set hole position to last piece (bottom right)
 	if(settings && !settings.hole && (settings.rows || settings.cols)) {
@@ -104,10 +104,10 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 	// extend the user-defined texts object with current language texts
 	texts = $.extend((i18n[settings.language] || i18n[defaults.language]), texts);
-	
+
 	// create some handy shortcut variables
-	var rows = settings.rows, 
-		cols = settings.cols, 
+	var rows = settings.rows,
+		cols = settings.cols,
 		hole = settings.hole;
 	var control = settings.control,
 		success = settings.success,
@@ -123,32 +123,32 @@ $.fn.jqPuzzle = function(settings, texts) {
 	// keep hole position within limits
 	if((hole > (rows*cols)) || (hole < 1)) hole = rows*cols;
 	hole--; // zero-based index
-	
+
 	// animation speed = 0 doesn't work
 	if(animation.slidingSpeed < 1) animation.slidingSpeed = 1;
 	if(animation.shuffleSpeed < 1)  animation.shuffleSpeed = 1;
 	if(animation.fadeOriginalSpeed < 1) animation.fadeOriginalSpeed = 1;
-	
+
 	// keep shuffle rounds within limits
 	if(animation.shuffleRounds < 1) animation.shuffleRounds = 1;
 
 
 	// helper functions --------------------------------------------------------
-	
+
 	// checks if the puzzle is solved
 	var checkSolution = function($pieces) {
 		// iterate over pieces and check each piece
 		for(var i = 0; i < $pieces.length; i++) {
-			// since the hole is not saved in the pieces array, 
+			// since the hole is not saved in the pieces array,
 			// adjust the index if it is bejond the hole position
 			var pieceIndex = (i < hole) ? i : i + 1;
-			
+
 			// check if current position match target (index) position
 			if($pieces.eq(i).attr('current') != pieceIndex) return false;
 		}
 		return true;
 	};
-	
+
 	// checks if the puzzle can be solved (pure math ...)
 	var checkOrder = function(numbersArray) {
 		var product = 1;
@@ -159,17 +159,17 @@ $.fn.jqPuzzle = function(settings, texts) {
 		}
 		return Math.round(product) == 1;
 	};
-	
+
 	// get the linear index from a row/col pair (zero-based)
 	var getLinearPosition = function(row, col) {
 		return parseInt(row)*cols + parseInt(col);
 	};
-	
+
 	// get the row/col pair from a linear index (zero-based)
 	var getMatrixPosition = function(index) {
 		return {row: (Math.floor(index/cols)), col: (index%cols)};
 	};
-	
+
 	// get the pixel width of a border (internet explorer returns keywords)
 	// the left side values will be used
 	var getBorderWidth = function($element) {
@@ -196,12 +196,12 @@ $.fn.jqPuzzle = function(settings, texts) {
 		var startPauseTime;
 		var totalPause = 0;
 		var timeout;
-		
-		var run = function() {	
+
+		var run = function() {
 			update(new Date().getTime());
 			timeout = setTimeout(run, interval);
 		};
-		
+
 		var update = function(now) {
 			callback(now - totalPause - startTime);
 		};
@@ -251,25 +251,25 @@ $.fn.jqPuzzle = function(settings, texts) {
 		var solved;						// flag if the puzzle is solved by the user
 		var shuffled = settings.shuffle;// flag if the puzzle was shuffled
 		var timer;						// a timer component
-					
+
 		// save the current hole position for further manipulation
 		var currHole = hole;
-		
-		
+
+
 		// create dummy elements to get computed css properties
 		var $dummyPiece = $('<div/>').addClass('jqp-piece');
 		var $dummyWrapper = $('<div/>').addClass('jqp-wrapper').append($dummyPiece);
 		var $dummyGui = $('<div/>')
 			.attr('class', $srcImg.attr('class') || '') // transfer classes
 			.addClass('jqPuzzle')
-			.append($dummyWrapper);		
-	
+			.append($dummyWrapper);
+
 		// replace original image with dummy
 		$srcImg.replaceWith($dummyGui);
-	
+
 		// assign old image id to dummy
 		$dummyGui.attr('id', $srcImg.attr('id') || '');
-		
+
 		// get computed css properties of dummy elements
 		var computedStyles = {
 			gui: {
@@ -289,23 +289,23 @@ $.fn.jqPuzzle = function(settings, texts) {
 				border: getBorderWidth($dummyPiece)
 			}
 		};
-		
+
 		// re-replace dummy elements with original image
 		$dummyGui.removeAttr('id');
 		$dummyGui.replaceWith($srcImg);
-		
-		
+
+
 		// wait for the image to be loaded, to be able to get its real width/height
 		$srcImg.one('load', function() {
 
 			// overlap piece borders if there is no margin between pieces
 			// this way, piece borders will not be doubled
 			var overlap = (style.gridSize === 0 && style.overlap);
-					
+
 			// total space of piece borders and grid lines, which will cover parts of the image
 			var coveredWidth  = cols*(2*computedStyles.piece.border) + (cols-1)*style.gridSize;
 			var coveredHeight = rows*(2*computedStyles.piece.border) + (rows-1)*style.gridSize;
-			
+
 			// recalc if overlap
 			if(overlap) {
 				coveredWidth  -= (cols-1)*computedStyles.piece.border;
@@ -314,12 +314,12 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 			// make sure to get the original image size, not scaled values
 			// in mozilla, width() and height() do not work with hidden elements
-			$srcImg.css({width: 'auto', height: 'auto', visibility: 'visible'}); 
-			
+			$srcImg.css({width: 'auto', height: 'auto', visibility: 'visible'});
+
 			// pieces width and height, based on original image size
 			var width  = Math.floor(($srcImg.width()-coveredWidth) / cols);
 			var height = Math.floor(($srcImg.height()-coveredHeight) / rows);
-			
+
 			// reject too small images
 			if(width < 30 || height < 30) return false;
 
@@ -329,7 +329,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 			// image source path
 			var imgSrc = $srcImg.attr('src');
-			
+
 			// total width/height of a piece (including piece border and 1 grid size)
 			var totalPieceWidth  = width + 2*computedStyles.piece.border + style.gridSize;
 			var totalPieceHeight = height + 2*computedStyles.piece.border + style.gridSize;
@@ -339,34 +339,34 @@ $.fn.jqPuzzle = function(settings, texts) {
 				piece : $.boxModel ? 0 : 2*computedStyles.piece.border,
 				wrapper: $.boxModel ? 0 : 2*(computedStyles.wrapper.border + computedStyles.wrapper.padding),
 				gui: {
-					width: $.boxModel ? 0 : 2*computedStyles.gui.border + 
+					width: $.boxModel ? 0 : 2*computedStyles.gui.border +
 						computedStyles.gui.padding.left + computedStyles.gui.padding.right,
-					height: $.boxModel ? 0 : 2*computedStyles.gui.border + 
+					height: $.boxModel ? 0 : 2*computedStyles.gui.border +
 						computedStyles.gui.padding.top + computedStyles.gui.padding.bottom
 				}
 			};
-			
-			
+
+
 			// helper functions ------------------------------------------------
-			
+
 			// pixel offset of an element, based on matrix position
 			var getOffset = function(row, col) {
 				var offset = {
 					left: computedStyles.wrapper.padding + col*totalPieceWidth,
 					top:  computedStyles.wrapper.padding + row*totalPieceHeight
 				};
-				
+
 				if(overlap) {
 					offset.left -= col * computedStyles.piece.border;
 					offset.top  -= row * computedStyles.piece.border;
 				}
-				
+
 				return offset;
 			};
 
 			// shuffle pieces
 			var shuffle = function(rounds, speed) {
-				
+
 				// when speed is defined, the function was triggered by a user event (button click)
 				if(speed) {
 					// do nothing, if disabled
@@ -374,25 +374,25 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 					// do nothing, if locked
 					if(lock) return false;
-					
+
 					// ask for confirmation
-					if(control.confirmShuffle && (moves > 0) && 
+					if(control.confirmShuffle && (moves > 0) &&
 					!window.confirm(texts.confirmShuffleMessage)) return false;
 
 					lock = true; // set lock
-					
+
 					// if the puzzle is solved
 					if(solved) {
 						// reset gui
 						$gui.removeClass('jqp-solved');
-						
+
 						// fade out original
 						$background.fadeTo(animation.fadeOriginalSpeed, style.backgroundOpacity, function() {
 							// opera gets kicked without remove()
 							$background.remove().prependTo($wrapper);
 
 							// re-enable all buttons
-							$buttons.removeClass('jqp-disabled');							
+							$buttons.removeClass('jqp-disabled');
 						});
 					}
 				}
@@ -405,16 +405,16 @@ $.fn.jqPuzzle = function(settings, texts) {
 				shuffled = true;
 				moves = 0;
 				seconds = 0;
-				
+
 				// reset display
 				if($display) $display.removeClass('jqp-disabled');
 				if($counter) $counter.val(moves);
 				if($timer) $timer.val(seconds);
-				
-				var shuffles = []; 
+
+				var shuffles = [];
 				var i = 0;
 				// generate orders for several shuffle rounds
-				while(i < rounds) {				
+				while(i < rounds) {
 					// create an array for choosing random positions
 					// based on its lenght, we can select free positions
 					var choices = [];
@@ -423,34 +423,34 @@ $.fn.jqPuzzle = function(settings, texts) {
 					}
 					// remove element on initial hole position
 					choices.splice(hole, 1);
-					
+
 					shuffles[i] = [];
 					// generate random numbers
 					for(var j = 0; j < rows*cols; j++) {
-						
+
 						// but keep hole at initial position
 						if(j == hole) {
 							shuffles[i][j] = hole;
 							continue;
 						}
-						
+
 						// select a random position based on the length of the choices
 						var randomIndex = Math.floor(Math.random()*choices.length);
-						
+
 						// save the value at this index as the next number in the current order
 						shuffles[i][j] = choices[randomIndex];
-						
+
 						// remove this value from the choices array (reducing its length)
 						choices.splice(randomIndex, 1);
 					}
-					
-					// don't increase i if we are in last round 
+
+					// don't increase i if we are in last round
 					// and the generated order is not solvable
 					if(((i+1) < rounds) || checkOrder(shuffles[i])) i++;
 				}
 
 				var animCounter = 0; // animation counter for save unlock
-				
+
 				// shuffle pieces in several rounds
 				for(var i = 0; i < rounds; i++) {
 
@@ -460,7 +460,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 					// iterate over the generated orders
 					// with j being the linear index for the destination order
 					for(var j = 0; j < shuffles[i].length; j++) {
-						
+
 						// we cannot move the hole
 						if(j == hole) {
 							// update hole position
@@ -472,10 +472,10 @@ $.fn.jqPuzzle = function(settings, texts) {
 						// in the original, ordered $pieces array
 						var pieceIndex = shuffles[i][j];
 
-						// since the hole is not saved in the $pieces array, 
+						// since the hole is not saved in the $pieces array,
 						// adjust the index if it is bejond the hole position
 						if(pieceIndex > hole) pieceIndex -= 1;
-						
+
 						// get the actual piece to be moved
 						var $piece = $pieces.eq(pieceIndex);
 
@@ -484,10 +484,10 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 						// get pixel offset new position
 						var offset = getOffset(target.row, target.col);
-						
+
 						// update current row/cal in last round	(ie needs a string)
 						if(lastRound) $piece.attr('current', j.toString());
-						
+
 						// either just set or animate styles
 						if(speed === undefined) {
 							$piece.css({left: offset.left, top: offset.top});
@@ -512,7 +512,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 			// create a wrapper for the pieces
 			var $wrapper = $('<div/>')
 				.addClass('jqp-wrapper')
-				.css({	
+				.css({
 					width: fullWidth + boxModelHack.wrapper,
 					height: fullHeight + boxModelHack.wrapper,
 					borderWidth: computedStyles.wrapper.border,
@@ -547,10 +547,10 @@ $.fn.jqPuzzle = function(settings, texts) {
 			for(var i = 0; i < rows; i++) {
 				for(var j = 0; j < cols; j++) {
 					var index = getLinearPosition(i,j); // linear index
-					
+
 					// do not create piece at initial hole position
 					if(index == hole) continue;
-						
+
 					// get piece position offset
 					var offset = getOffset(i,j);
 
@@ -579,10 +579,10 @@ $.fn.jqPuzzle = function(settings, texts) {
 					);
 				}
 			}
-	
+
 			// initially shuffle pieces
 			if(settings.shuffle) shuffle(1);
-			
+
 			// create background (original image) inside wrapper
 			var $background = $('<div/>')
 				.css({
@@ -598,7 +598,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 					opacity: style.backgroundOpacity
 				})
 				.prependTo($wrapper);
-			
+
 			// create controls which will hold the buttons and the display
 			var $controls = $('<div/>')
 				.addClass('jqp-controls')
@@ -609,7 +609,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 				});
 
 			var $shuffleButton, $originalButton, $numbersButton;
-			
+
 			// create a button prototype to be cloned for the actual buttons
 			var $protoButton = $('<a/>').css('cursor', 'default');
 
@@ -633,9 +633,9 @@ $.fn.jqPuzzle = function(settings, texts) {
 					.text(texts.toggleNumbersLabel)
 					.appendTo($controls);
 				// immediately toggle button, if numbers are initially shown
-				if(settings.numbers) $numbersButton.addClass('jqp-toggle');		
+				if(settings.numbers) $numbersButton.addClass('jqp-toggle');
 			}
-			
+
 			// keep a reference to all buttons for convenience
 			var $buttons = $controls.children();
 
@@ -646,7 +646,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 				$display = $('<span/>')
 					.css('cursor', 'default')
 					.appendTo($controls);
-			
+
 				// create a text field prototype to be cloned for actual text fields
 				var $protoField = $('<input/>')
 					.val(0)
@@ -660,7 +660,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 				if(control.counter)	$counter = $protoField.clone()
 					.appendTo($display)
 					.after(texts.movesLabel + ' ');
-					
+
 				// create timer component
 				if(control.timer) $timer = $protoField.clone()
 					.appendTo($display)
@@ -669,7 +669,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 				// disable display if the puzzle is not shuffled yet
 				if(!settings.shuffle) $display.addClass('jqp-disabled');
 			}
-			
+
 			// add link to jqPuzzle homepage
 			var $credits = $('<a/>')
 				.text('jqPuzzle')
@@ -695,7 +695,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 			var $panel = $('<div/>')
 				.css({
 					width: fullWidth + 2*(computedStyles.wrapper.padding + computedStyles.wrapper.border),
-					position: 'absolute', 
+					position: 'absolute',
 					display: 'block',
 					visibility: 'inherit',//'visible',
 					margin: '0px',
@@ -712,7 +712,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 					width: fullWidth + 2*(computedStyles.wrapper.padding + computedStyles.wrapper.border) + boxModelHack.gui.width,
 					height: fullHeight + 2*(computedStyles.wrapper.padding + computedStyles.wrapper.border) + boxModelHack.gui.height,
 					textAlign: 'left',
-					overflow: 'hidden', 
+					overflow: 'hidden',
 					display: 'block'
 				})
 				.append($wrapper).append($panel);
@@ -723,8 +723,8 @@ $.fn.jqPuzzle = function(settings, texts) {
 			// assign source image id to jqPuzzle
 			var id = $srcImg.attr('id');
 			if(id) $gui.attr('id', id);
-			
-			// opera has strange effect when calling hide() and val() before 
+
+			// opera has strange effect when calling hide() and val() before
 			// the elements are attached to the dom
 			// hide numbers
 			if(!settings.numbers) $pieces.children().hide();
@@ -734,16 +734,16 @@ $.fn.jqPuzzle = function(settings, texts) {
 			// now, after everything is rendered, recalc gui height
 			var guiHeight = $gui.height();
 			var panelHeight = $panel.height();
-			
+
 			$gui.height($gui.height() + $panel.height());
 
 
 			// attach events ---------------------------------------------------
-			
+
 			// prevent text selection
 			if($.browser.msie) $gui[0].onselectstart = function() { return false; };
 			else  $gui.mousedown(function() { return false; });
-			
+
 			// button press on mousedown
 			$buttons.mousedown(function() {
 				if(!$(this).is('.jqp-disabled')) $(this).addClass('jqp-down');
@@ -752,24 +752,24 @@ $.fn.jqPuzzle = function(settings, texts) {
 				$(this).removeClass('jqp-down');
 			});
 			$buttons.mouseup(function() {
-				$(this).removeClass('jqp-down');	
+				$(this).removeClass('jqp-down');
 			});
-			
+
 			// swap pieces on click
 			$pieces.click(function() {
 				// do nothing, if locked
 				if(lock) return false;
-				
+
 				// do nothing, if solved after being shuffled
 				if(solved) return false;
-				
+
 				lock = true; // set lock
-				
+
 				var $piece = $(this);
-				
+
 				// get current position from expando
 				var current = $piece.attr('current');
-				
+
 				// get current matrix positions for piece and hole
 				var source = getMatrixPosition(current);
 				var dest = getMatrixPosition(currHole);
@@ -802,7 +802,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 					});
 					timer.start();
 				}
-				
+
 				// animate!
 				$piece.animate({left: offset.left, top: offset.top}, animation.slidingSpeed, null, function() {
 					// only check if the puzzle was shuffled
@@ -813,9 +813,9 @@ $.fn.jqPuzzle = function(settings, texts) {
 							if(timer) timer.stop();
 							shuffled = false;
 							$gui.addClass('jqp-solved');
-							window.setTimeout(finishGame, 100);	
+							window.setTimeout(finishGame, 100);
 						}
-						else lock = false;						
+						else lock = false;
 					}
 					else lock = false;
 				});
@@ -823,7 +823,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 			// shuffle pieces on click
 			if(control.shufflePieces) $shuffleButton.click(function() {
-				shuffle(animation.shuffleRounds, animation.shuffleSpeed);	
+				shuffle(animation.shuffleRounds, animation.shuffleSpeed);
 			});
 
 			// toggle original on click
@@ -833,38 +833,38 @@ $.fn.jqPuzzle = function(settings, texts) {
 
 				// do nothing, if locked
 				if(lock) return false;
-				
+
 				lock = true; // set lock
-				
+
 				if($originalButton.is('.jqp-toggle')) {
 					// re-enable other buttons
 					if(control.shufflePieces) $shuffleButton.removeClass('jqp-disabled');
 					if(control.toggleNumbers) $numbersButton.removeClass('jqp-disabled');
-			
+
 					$originalButton.removeClass('jqp-toggle');
-					
+
 					// fade out original
 					$background.fadeTo(animation.fadeOriginalSpeed, style.backgroundOpacity, function() {
 						$(this).prependTo($wrapper);
-						
+
 						// resume timer
 						if(control.pauseTimer && timer) timer.resume();
-						
+
 						lock = false;
 					});
 				} else {
 					// disable other buttons
 					if(control.shufflePieces) $shuffleButton.addClass('jqp-disabled');
 					if(control.toggleNumbers) $numbersButton.addClass('jqp-disabled');
-					
+
 					$originalButton.addClass('jqp-toggle');
 
 					// pause timer
 					if(control.pauseTimer && timer) timer.pause();
-					
+
 					// fade in original
 					$background.appendTo($wrapper).fadeTo(animation.fadeOriginalSpeed, 1, function() {
-			
+
 						lock = false;
 					});
 				}
@@ -875,7 +875,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 			if(control.toggleNumbers) $numbersButton.click(function() {
 				// do nothing, if disabled
 				if($numbersButton.is('.jqp-disabled')) return false;
-				
+
 				if ($numbersButton.is('.jqp-toggle')) {
 					$numbersButton.removeClass('jqp-toggle');
 					$pieces.children().hide();
@@ -883,16 +883,16 @@ $.fn.jqPuzzle = function(settings, texts) {
 					$numbersButton.addClass('jqp-toggle');
 					$pieces.children().show();
 				}
-			});		
-			
-			
+			});
+
+
 			// work to do when the puzzle is solved
 			var finishGame = function() {
-				if(success.fadeOriginal) {	
+				if(success.fadeOriginal) {
 					// disable buttons
 					if(control.toggleOriginal) $originalButton.addClass('jqp-disabled');
 					if(control.toggleNumbers) $numbersButton.addClass('jqp-disabled');
-					
+
 					// fade in original
 					$background.appendTo($wrapper).fadeTo(animation.fadeOriginalSpeed, 1.0, function() {
 						lock = false; // reset lock
@@ -900,7 +900,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 					});
 				} else {
 					lock = false; // reset lock
-					solutionCallback(); // call user callback	
+					solutionCallback(); // call user callback
 				}
 			};
 
@@ -909,12 +909,12 @@ $.fn.jqPuzzle = function(settings, texts) {
 				if($.isFunction(success.callback)) {
 					setTimeout(function() {
 						success.callback({moves: moves, seconds: seconds});
-					}, success.callbackTimeout);	
+					}, success.callbackTimeout);
 				}
 			};
 
 		}); // img load
-		
+
 		// unfortunately, image load does not fire consistently across browsers
 		// (especially with cached images)
 		// therefore, check image.load periodically (bah, brute force...)
@@ -924,7 +924,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 				$srcImg.trigger('load');
 			}
 		}, 333);
-		
+
 		/*
 		var interval;
 		(function waitForImage($image) {
@@ -937,7 +937,7 @@ $.fn.jqPuzzle = function(settings, texts) {
 				$image.trigger('load');
 			}
 		})($srcImg);*/
-		
+
 		// ie shows some inconsistencies with img load and cached images
 		// fortunately, in this cases img.complete is true from the beginning
 		//if($.browser.msie && $srcImg[0] && $srcImg[0].complete) $srcImg.trigger('load');
@@ -952,9 +952,9 @@ $(document).ready(function() {
 	$('img.jqPuzzle').each(function() {
 
 		// define an additional micro format (to be used as a class name)
-		
+
 		/* Syntax:   .jqp[-LANGUAGE]-rROWS-cCOLS[-hHOLE][-sSHUFFLE_ROUNDS][-FLAGS]
-		 * 
+		 *
 		 * Flags:    S - initially shuffle pieces
 		 *           N - initially hide numbers
 		 *           A - hide 'Shuffle' button
@@ -964,27 +964,27 @@ $(document).ready(function() {
 		 *           E - hide 'seconds' display
 		 */
 		var microFormat = /\bjqp(-[a-z]{2})?-r(\d)-c(\d)(-h(\d+))?(-s(\d+))?(-[A-Z]+)?\b/;
-				
+
 		// execute regex and save matches
 		var match = microFormat.exec(this.className);
-		
+
 		// build settings object from micro format
 		var settings;
 		if(match) {
-			settings = {	
+			settings = {
 				rows: parseInt(match[2]),
-				cols: parseInt(match[3]), 
+				cols: parseInt(match[3]),
 				hole: parseInt(match[5]) || null,
 				shuffle: match[8] && match[8].indexOf('S') != -1,
 				numbers: match[8] ? match[8].indexOf('N') == -1 : true,
 				language: match[1] && match[1].substring(1)
 			};
-			
+
 			if(match[7]) {
 				settings.animation = {};
 				settings.animation.shuffleRounds = parseInt(match[7]);
 			}
-			
+
 			if(match[8] && match[8].search(/[ABCDE]/) != -1) {
 				settings.control = 	{};
 				settings.control.shufflePieces = match[8].indexOf('A') == -1;
