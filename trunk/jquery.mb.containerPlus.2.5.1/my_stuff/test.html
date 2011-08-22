@@ -4,7 +4,7 @@
   <title>New Style</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
-  <link rel="stylesheet" type="text/css" href="../css/mbContainer.css" title="style"  media="screen"/>
+  <link rel="stylesheet" type="text/css" href="css/mbContainer.css" title="style"  media="screen"/>
    <link rel="stylesheet" type="text/css" href="css/main.css" title="style"  media="screen"/>
 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
@@ -17,14 +17,10 @@
     $(function(){
       $(".containerPlus").buildContainers({
         containment:"document",
-        elementsPath:"../elements/",
+        elementsPath:"images/",
         onIconize:function(o){},
-        effectDuration:100
+        effectDuration:10
       });
-
-      if (!$("#demoContainer").mb_getState("closed")){
-        $('#close').fadeIn();$('#actions').fadeIn(); $("#open").hide(); $('#open_change').hide();
-      }
     });
   </script>
   <style type="text/css">
@@ -52,7 +48,7 @@
 
 
 
-  <div class="containerPlus draggable resizable {skin:'default', width:'700',title:'Dock' }" style="top:65px; left:20%">
+  <div class="containerPlus draggable resizable {buttons:'m,i', icon:'home.png', skin:'blue', width:'700',title:'Dock' }" style="top:65px; left:20%">
     <div id="dock"> </div><div style="clear:both;"></div>
     <hr><br>
     <b>this container is always on top!</b>
@@ -65,18 +61,10 @@
     <p>to verify the state of a container you have a metod <span style="font-weight: bold;">$.fn.mb_getState(attr)</span>; you can pass the attribute to verify (ex: collapsed or iconized) and it returns
       <span style="font-weight: bold;">true</span> or <span style="font-weight: bold;">false</span></p>
       <h1>More stuff</h1>
-         <b>this container is always on top!</b>
-    <p>by setting the metatag: alwaysOnTop:true, this container stay over the others.</p>
-    <b>You can choose where the iconized containers are stored!</b>
-    <p>this is an example, but you can define whatever DOM element you want as your dock; and each iconizable container can have its one or none (in that case it's iconized at left:0 of its parent)!</p>
-    <b>preminimize a container</b>
-    <p>to preminimize containers just add the param <span style="font-weight: bold;">collapsed:'true'</span></p>
-    <p>You can verify the state of this container by pressing the button at the end of this page.</p>
-    <p>to verify the state of a container you have a metod <span style="font-weight: bold;">$.fn.mb_getState(attr)</span>; you can pass the attribute to verify (ex: collapsed or iconized) and it returns
-      <span style="font-weight: bold;">true</span> or <span style="font-weight: bold;">false</span></p>
+
   </div>
 
-  <div class="containerPlus draggable resizable {buttons:'m,i', icon:'browser.png', skin:'white', width:'500',iconized:'true', dock:'dock', title:'Other'}" style="position:fixed;top:100px;left:400px;">
+  <div class="containerPlus draggable resizable {buttons:'m,i', icon:'browser.png', skin:'blue', width:'500',iconized:'true', dock:'dock', title:'Other'}" style="position:fixed;top:100px;left:400px;">
       <h3>Blah, blah, blah</h3>
       <p>to preiconize containers just add the param <span style="font-weight: bold;">iconized:'true'</span></p>
     <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras metus. Maecenas justo elit, lacinia sit amet, cursus ut, sagittis sed, eros. Suspendisse potenti. Maecenas nec nisi. Donec vestibulum sollicitudin tellus. Sed consequat pellentesque ante. Vestibulum turpis quam, vulputate nec, nonummy convallis, ultrices congue, ligula. Ut rutrum leo et orci. Proin pharetra. Nam non sem ut eros fringilla ornare. In ullamcorper lorem eget ipsum. Suspendisse semper enim in arcu cursus consectetuer. Suspendisse potenti. Proin libero eros, adipiscing quis, volutpat in, ultrices ut, lacus.</p>
@@ -84,7 +72,7 @@
   </div>
 
 
-  <div id="demoContainer" class="containerPlus draggable {buttons:'i', icon:'chart.png', skin:'black', width:'500',dock:'dock',closed:'false', title:'container Demo'}" style="position:absolute;top:250px;left:400px; ">
+  <div id="demoContainer" class="containerPlus draggable resizable {buttons:'m,i', icon:'chart.png', skin:'blue', width:'500',dock:'dock',closed:'false', title:'container Demo'}" style="position:absolute;top:250px;left:400px; ">
     <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras metus. Maecenas justo elit, lacinia sit amet, cursus ut, sagittis sed, eros. Suspendisse potenti. Maecenas nec nisi. Donec vestibulum sollicitudin tellus. Sed consequat pellentesque ante. Vestibulum turpis quam, vulputate nec, nonummy convallis, ultrices congue, ligula. Ut rutrum leo et orci. Proin pharetra. Nam non sem ut eros fringilla ornare. In ullamcorper lorem eget ipsum. Suspendisse semper enim in arcu cursus consectetuer. Suspendisse potenti. Proin libero eros, adipiscing quis, volutpat in, ultrices ut, lacus.</p>
   </div>
 
